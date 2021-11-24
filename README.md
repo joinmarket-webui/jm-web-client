@@ -47,7 +47,7 @@ While this prototype will hopefully be available as a packaged version soon, her
 
 You can install it via the RaspiBlitz Services menu: ```Services > j [BTC JoinMarket+JoininBox menu]```
 
-This prototye makes use of the JoinMarket [RPC API](https://github.com/JoinMarket-Org/joinmarket-clientserver/pull/996).
+This prototype makes use of the JoinMarket [RPC API](https://github.com/JoinMarket-Org/joinmarket-clientserver/pull/996).
 For this, you will need JoinMarket [version 0.9.3](https://github.com/JoinMarket-Org/joinmarket-clientserver/releases/tag/v0.9.3) or higher.
 If needed you can upgrade JoinMarket to the latest commit via the JoininBox menu on your RaspiBlitz: Type `jm` in the command line and select ```UPDATE > ADVANCED > JMCOMMIT```.
 This will install the latest development version from JoinMarket's master branch.
