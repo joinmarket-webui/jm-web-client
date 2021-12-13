@@ -104,11 +104,19 @@ parse_params() {
 
   args=("$@")
 
-  # check required params and arguments
-  [[ -z "${wallet_password-}" ]] && die "Missing required parameter: password"
-  [[ -z "${wallet_name-}" ]] && die "Missing required parameter: wallet-name"
-  [[ -z "${mixdepth-}" ]] && die "Missing required parameter: mixdepth"
-  [[ -z "${blocks-}" ]] && die "Missing required parameter: blocks"
+  # check required params
+  [ -z "${wallet_name-}" ] && die "Missing required parameter: 'wallet-name'"
+  [[ "${wallet_name-}" != *".jmdat" ]] && die "Invalid parameter: 'wallet-name' must end with '.jmdat'"
+
+  [ -z "${wallet_password-}" ] && die "Missing required parameter: 'password'"
+
+  [ -z "${mixdepth-}" ] && die "Missing required parameter: 'mixdepth'"
+  [ -z "${mixdepth//[\-0-9]}" ] || die "Invalid parameter: 'mixdepth' must be an integer"
+  [ "$mixdepth" -ge 0 ] && [ "$mixdepth" -le 4 ] || die "Invalid parameter: 'mixdepth' must be in range 0..4"
+
+  [ -z "${blocks-}" ] && die "Missing required parameter: 'blocks'"
+  [ -z "${blocks//[\-0-9]}" ] || die "Invalid parameter: 'blocks' must be an integer"
+  [ "$blocks" -ge 1 ] || die "Invalid parameter: 'blocks' must be a positve integer"
 
   return 0
 }
@@ -167,6 +175,8 @@ fi
 ##
 wallet_all_result=$(curl "$base_url/api/v1/wallet/all" --silent --show-error --insecure | jq ".")
 available_wallets=$(jq -r '.wallets' <<< "$wallet_all_result")
+
+msg "Available wallets: $available_wallets"
 
 target_wallet_index=$(echo "$available_wallets" | jq -r "index(\"$wallet_name\")")
 target_wallet_exists=$( [ "$target_wallet_index" = "null" ] ; echo $? )
