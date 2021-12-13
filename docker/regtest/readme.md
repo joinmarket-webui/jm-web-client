@@ -27,17 +27,17 @@ Currently the only functionality is funding a joinmarket regtest wallet.
 [user@home regtest]$ ./regtest-control.sh --help
 ```
 ```
-Usage: regtest-control.sh [-h] [-v] [-f] -p password arg1 [arg2...]
+Usage: regtest-control.sh [-h] [-v] [-w wallet_name] [-p password] [-m mixdepth] [-b blocks]
 
 A helper script to fund your joinmarket regtest wallet.
 Executed without parameters, it will mine a single block to wallet 'funded.jmdat' in mixdepth 0.
-If the given wallet does not exists, it will be created.
+If the given wallet does not exist, it will be created.
 
 Available options:
     -h, --help           Print this help and exit
     -v, --verbose        Print script debug info
+    -w, --wallet-name    Wallet name (default: funded.jmdat)
     -p, --password       Wallet password (default: test)
-    -n, --wallet-name    Wallet name (default: funded.jmdat)
     -m, --mixdepth       mixdepth used (0 - 4) (default: 0)
     -b, --blocks         amount of blocks (default: 1)
 ```
@@ -64,7 +64,7 @@ e.g. "Mine 5 blocks to wallet `satoshi.jmdat` with password `correctbatteryhorse
 ```
 ```
 Trying to fund wallet satoshi.jmdat..
-Successfully establised connection to jmwalletd
+Successfully established connection to jmwalletd
 Wallet satoshi.jmdat does not exist - creating..
 Successfully created wallet satoshi.jmdat.
 Write down the seedphrase: abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about

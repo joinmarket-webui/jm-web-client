@@ -7,17 +7,17 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
 
 usage() {
   cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-f] -p password arg1 [arg2...]
+Usage: regtest-control.sh [-h] [-v] [-w wallet_name] [-p password] [-m mixdepth] [-b blocks]
 
 A helper script to fund your joinmarket regtest wallet.
 Executed without parameters, it will mine a single block to wallet 'funded.jmdat' in mixdepth 0.
-If the given wallet does not exists, it will be created.
+If the given wallet does not exist, it will be created.
 
 Available options:
     -h, --help           Print this help and exit
     -v, --verbose        Print script debug info
+    -w, --wallet-name    Wallet name (default: funded.jmdat)
     -p, --password       Wallet password (default: test)
-    -n, --wallet-name    Wallet name (default: funded.jmdat)
     -m, --mixdepth       mixdepth used (0 - 4) (default: 0)
     -b, --blocks         amount of blocks (default: 1)
 
@@ -69,7 +69,6 @@ die() {
 
 parse_params() {
   # default values of variables set from params
-  flag=0
   wallet_password='test'
   wallet_name='funded.jmdat'
   mixdepth='0'
@@ -81,12 +80,11 @@ parse_params() {
     -h | --help) usage ;;
     -v | --verbose) set -x ;;
     --no-color) NO_COLOR=1 ;;
-    -f | --flag) flag=1 ;; # example flag
     -p | --password)
       wallet_password="${2-}"
       shift
       ;;
-    -n | --wallet-name)
+    -w | --wallet-name)
       wallet_name="${2-}"
       shift
       ;;
@@ -111,7 +109,6 @@ parse_params() {
   [[ -z "${wallet_name-}" ]] && die "Missing required parameter: wallet-name"
   [[ -z "${mixdepth-}" ]] && die "Missing required parameter: mixdepth"
   [[ -z "${blocks-}" ]] && die "Missing required parameter: blocks"
-  #[[ ${#args[@]} -eq 0 ]] && die "Missing script arguments. Use --help on usage information."
 
   return 0
 }
@@ -125,13 +122,6 @@ docker_container_running() {
   [ -z "${1-}" ] && die "docker_container_running: Missing required parameter: name"
   echo $(docker ps --filter "name=${1-}" --filter status=running -q)
 }
-
-#command=${args[@]-}
-#if [ "$command" = "fund" ]; then 
-#else
-#    usage
-#    die "RTFM!"
-#fi
 
 msg "Trying to fund wallet $wallet_name.."
 
@@ -155,9 +145,8 @@ msg "Trying to fund wallet $wallet_name.."
 # param "--insecure": Is needed because a self-signed certificate is used in joinmarket regtest container
 # param "--silent": Don't show progress meter or error messages (errors are reactivated with "--show-error").
 # param "--show-error": When used with -s, --silent, it makes curl show an error message if it fails.
-
 if session_result=$(curl "$base_url/api/v1/session" --silent --show-error --insecure | jq "."); then
-  msg_success "Successfully establised connection to jmwalletd"
+  msg_success "Successfully established connection to jmwalletd"
 else rc=$?
   die "Could not connect to joinmarket. Please make sure jmwalletd is running inside container."
 fi
@@ -298,7 +287,7 @@ msg_success "Successfully locked wallet $wallet_name."
 msg "Generating $blocks blocks with rewards to $address"
 btcd_generatetoaddress_result=$(docker exec -t jm_regtest_bitcoind bitcoin-cli --datadir=/data generatetoaddress $blocks $address)
 
-## make the generated coinbase spendable (not mining the new coinbases to an address controlled by the wallet on purpose!)
+# make the generated coinbase spendable (not mining the new coinbases to an address controlled by the wallet on purpose!)
 btcd_generate_result=$(docker exec -t jm_regtest_bitcoind bitcoin-cli --datadir=/data -generate 100)
 
 msg_success "Successfully generated $blocks blocks with rewards to $address"
